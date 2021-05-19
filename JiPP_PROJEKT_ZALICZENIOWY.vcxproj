@@ -139,13 +139,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="errors.h" />
+    <ClInclude Include="errorsss.h" />
     <ClInclude Include="interface.h" />
     <ClInclude Include="stos.h" />
     <ClInclude Include="student.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="errors.cpp" />
+    <ClCompile Include="errorsss.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="student.cpp" />
     <ClCompile Include="interface.cpp" />

@@ -24,7 +24,7 @@
     <ClInclude Include="interface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="errors.h">
+    <ClInclude Include="errorsss.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -38,7 +38,7 @@
     <ClCompile Include="interface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="errors.cpp">
+    <ClCompile Include="errorsss.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">

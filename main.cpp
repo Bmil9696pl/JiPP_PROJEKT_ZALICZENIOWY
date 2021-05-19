@@ -7,8 +7,10 @@
 #include <iostream>
 using namespace std;
 
+
+
 int main() {
-	STOS_init(MY_STUDENT_free);
+	STOS_init(MY_STUDENT_free, MY_STUDENT_print, MY_STUDENT_save, MY_STUDENT_read);
 	size_t op = 0;
 	while (op >= INTERF_PUSH && op <= INTERF_STOP) {
 		menu();

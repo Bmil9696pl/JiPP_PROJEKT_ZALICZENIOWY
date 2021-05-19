@@ -5,8 +5,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
-#include "errors.h"
+#include "errorsss.h"
 using namespace std;
+
+#pragma warning (disable : 4996)
 
 static const char* kierunki[]{
 	"0 - informatyka",
@@ -43,7 +45,7 @@ void push() {
 	cout << "nazwisko, rok, kierunek" << endl;
 	cin >> nazw;
 	cin >> rok;
-	for (it = 0; it < INTERF_TOT; ++it)
+	for (it = 0; it < KIER_TOT; ++it)
 	{
 		printf("%s\n", kierunki[it]);
 	}
@@ -60,9 +62,132 @@ void pop() {
 	MY_STUDENT_free(tmp.pData);
 }
 
-void clear();
-void menu();
-void find();
-void save();
-void read();
-void print();
+void clear() {
+	STOS_free();
+}
+
+void find() {
+	size_t switch_val;
+	cout << "po czym chcesz szukac?\n1-nazwisko\n2-rok\n3-kierunek" << endl;
+	cin >> switch_val;
+	switch (switch_val) {
+	case 1:
+		find_nazw();
+		break;
+	case 2:
+		find_rok();
+		break;
+	case 3:
+		find_kier();
+		break;
+	default: cout << "nie ma takiej opcji" << endl;
+	}
+}
+
+void save() {
+	STOS_save();
+}
+
+void read() {
+	STOS_read();
+}
+
+void print() {
+	STOS_print();
+}
+
+void find_nazw() {
+	char str[128];
+	cout << "wprowadŸ szukane nazwisko" << endl;
+	cin >> str;
+	STUDENT* sDat = (STUDENT*)malloc(sizeof(STUDENT));
+	if (!sDat) {
+		mess_fun(MEM_ALLOC_ERROR);
+		return;
+	}
+
+	memset(sDat, 0, sizeof(STUDENT));
+	size_t size = strlen(str) + 1;
+	sDat->nazwisko = (char*)malloc(size * sizeof(char));
+	if (!sDat->nazwisko) {
+		mess_fun(MEM_ALLOC_ERROR);
+		return;
+	}
+	strcpy(sDat->nazwisko, str);
+
+	void* pDat = STOS_search(sDat, MY_STUDENT_comp_nazw, 1);
+
+	if (pDat) {
+		cout << "znaleziono:" << endl;
+		MY_STUDENT_print(pDat);
+	}
+
+	while (pDat) {
+		pDat = STOS_search(sDat, MY_STUDENT_comp_nazw, 0);
+		if (pDat) {
+			cout << "znaleziono:" << endl;
+			MY_STUDENT_print(pDat);
+		}
+	}
+}
+
+void find_rok() {
+	int szuk;
+	cout << "wprowadŸ szukany rok" << endl;
+	cin >> szuk;
+	STUDENT* sDat = (STUDENT*)malloc(sizeof(STUDENT));
+	if (!sDat) {
+		mess_fun(MEM_ALLOC_ERROR);
+		return;
+	}
+
+	memset(sDat, 0, sizeof(STUDENT));
+	sDat->rok = szuk;
+
+	void* pDat = STOS_search(sDat, MY_STUDENT_comp_rok, 1);
+
+	if (pDat) {
+		cout << "znaleziono:" << endl;
+		MY_STUDENT_print(pDat);
+	}
+
+	while (pDat) {
+		pDat = STOS_search(sDat, MY_STUDENT_comp_rok, 0);
+		if (pDat) {
+			cout << "znaleziono:" << endl;
+			MY_STUDENT_print(pDat);
+		}
+	}
+}
+void find_kier() {
+	int szuk;
+	cout << "wprowadŸ szukany kierunek" << endl;
+	for (int it = 0; it < KIER_TOT; ++it)
+	{
+		printf("%s\n", kierunki[it]);
+	}
+	cin >> szuk;
+	STUDENT* sDat = (STUDENT*)malloc(sizeof(STUDENT));
+	if (!sDat) {
+		mess_fun(MEM_ALLOC_ERROR);
+		return;
+	}
+
+	memset(sDat, 0, sizeof(STUDENT));
+	sDat->kierunek = static_cast<KIERUNEK>(szuk);
+
+	void* pDat = STOS_search(sDat, MY_STUDENT_comp_kier, 1);
+
+	if (pDat) {
+		cout << "znaleziono:" << endl;
+		MY_STUDENT_print(pDat);
+	}
+
+	while (pDat) {
+		pDat = STOS_search(sDat, MY_STUDENT_comp_kier, 0);
+		if (pDat) {
+			cout << "znaleziono:" << endl;
+			MY_STUDENT_print(pDat);
+		}
+	}
+}

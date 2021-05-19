@@ -2,14 +2,24 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "student.h"
-#include "errors.h"
+#include "errorsss.h"
+#include <iostream>
+using namespace std;
+
+#pragma warning (disable : 4996)
 
 static STOS* head = NULL;
 FreeData ptr_free_dat;
+Print print;
+Save save;
+Load load;
 
-void STOS_init(FreeData pFreeDat) {
+void STOS_init(FreeData pFreeDat, Print _print, Save _save, Load _load) {
 	head = NULL;
 	ptr_free_dat = pFreeDat;
+	print = _print;
+	save = _save;
+	load = _load;
 }
 
 void STOS_free() {
@@ -25,11 +35,12 @@ void STOS_free() {
 	head = NULL;
 }
 
-STOS * STOS_push(void* pdat) {
+STOS* STOS_push(void* pdat) {
 	STOS* current = (STOS*)malloc(sizeof(STOS));
-	if (!current)
+	if (!current){
 		mess_fun(MEM_ALLOC_ERROR);
 		return NULL;
+	}
 
 	current->pData = pdat;
 	current->next = head;
@@ -53,9 +64,10 @@ STOS STOS_pop() {
 		free(head);
 		head = next;
 	}
+	return rv;
 }
 
-void * STOS_search(void* pSearchDat, CompData ptr_comp_fun, int FirstEntry) {
+void * STOS_search(void* pSearchDat, Find ptr_comp_fun, int FirstEntry) {
 	static STOS* p;
 	STOS* ptmp = NULL;
 
@@ -79,41 +91,114 @@ void * STOS_search(void* pSearchDat, CompData ptr_comp_fun, int FirstEntry) {
 	return NULL;
 }
 
-bool STOS_save() {
+void STOS_save() {
 	STOS* current = head;
-	STOS* tmp = NULL;
+	if (current == NULL) {
+		mess_fun(STACK_UNDERFLOW);
+		return;
+	}
+
+	size_t count = 0, items_t = 0;
 	while (current != NULL) {
-		if (!MY_STUDENT_save(current))
-			mess_fun(MEM_FILE_ERROR);
-		tmp = current->next;
-		current = tmp;
+		count++;
+		current = current->next;
+	}
+	current = head;
+
+	unsigned int items = (unsigned int)count;
+	__int64* fdesc = (__int64*)malloc((items + 1) * sizeof(__int64));
+	if (!fdesc) {
+		file_error(NULL, fdesc);
+	}
+
+	FILE* file = fopen("DataFile.bin", "wb");
+	if (!file){
+		file_error(file, fdesc);
+		return;
+	}
+
+	if (fwrite(&items, sizeof(unsigned int), 1, file) != 1)
+	{
+		file_error(file, fdesc);
+	}
+
+	_fseeki64(file, (count + 1) * sizeof(__int64), SEEK_CUR);
+
+	while (current != NULL) {
+		fdesc[items_t] = ftell(file);
+		items_t++;
+		if (save(current->pData, file) != true) {
+			file_error(file, fdesc);
+		}
+		current = current->next;
+	}
+	
+	_fseeki64(file, sizeof(unsigned int), SEEK_SET);
+	if (fwrite(fdesc, sizeof(__int64), count + 1, file) != count + 1)
+		file_error(file, fdesc);
+
+	if (file) {
+		fclose(file);
+		file = NULL;
+	}
+	if(fdesc) {
+		free(fdesc);
+		fdesc = NULL;
 	}
 }
-STOS STOS_read() {
-	bool pom = 1;
-	void* ret;
-	FILE* file = fopen("DataFile.bin", "wb");
-	if(!file)
-		mess_fun(MEM_FILE_ERROR);
 
-	if (head != NULL) {
-		STOS_free();
+void STOS_read() {
+	STOS_free();
+
+	__int64* fdesc = NULL;
+	unsigned int items = 0, itemss, record;
+
+	FILE* file = fopen("DataFile.bin", "rb");
+	if (!file) {
+		file_error(file, fdesc);
 	}
 
-	while(pom != 0) {
-		if ((ret = MY_STUDENT_read(file)) != false)
-			STOS_push(ret);
-		else
-			pom = 0;
+	if (fread(&items, sizeof(unsigned int), 1, file) != 1) {
+		file_error(file, fdesc);
+	}
+
+	fdesc = (__int64*)malloc((items + 1) * sizeof(__int64));
+	if (!fdesc) {
+		file_error(file, fdesc);
+	}
+
+	if (fread(fdesc, sizeof(fdesc[0]), items + 1, file) != items + 1) {
+		file_error(file, fdesc);
+	}
+
+	for (itemss = 0; itemss < items; ++itemss) {
+		record = items - itemss - 1;
+		_fseeki64(file, fdesc[record], SEEK_SET);
+		
+		void* pDat = load(file);
+		if (!STOS_push(pDat)) {
+			file_error(file, fdesc);
+		}
+	}
+
+	if (file) {
+		fclose(file);
+		file = NULL;
+	}
+
+	if (fdesc) {
+		free(fdesc);
+		fdesc = NULL;
 	}
 }
 
 void STOS_print() {
 	STOS* current = head;
-	STOS* tmp = NULL;
-	while (current != NULL) {
-		MY_STUDENT_print(current->pData);
-		tmp = current->next;
-		current = tmp;
+	if (current != NULL) {
+		while (current != NULL) {
+			MY_STUDENT_print(current->pData);
+			current = current->next;
+		}
 	}
+	else cout << "stos jest pusty" << endl;
 }
