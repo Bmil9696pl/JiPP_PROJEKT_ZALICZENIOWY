@@ -3,7 +3,8 @@
 #ifndef STUDENT_H
 #define STUDENT_H
 
-typedef enum KIERUNEK {
+//SF Dla czego typedef?
+enum KIERUNEK {
 	informatyka,
 	elektronika_i_telekomunikacja,
 	automatyka_i_robotyka,

@@ -10,32 +10,39 @@ using namespace std;
 
 bool MY_STUDENT_save(void* tmp, FILE* file) {
 	STUDENT* pSt = (STUDENT*)tmp;
+	//SF Sizeof(STUDENT) nie zawsze jest rowny sumie sizeof(poszczegolna skladowa).
+	//zalezy to od wyrownania na granice slowa. W tym przypadku kiedy sizeof(STUDENT) != suma{sizeof(skladowe)}
+	//bufor pSt nie pozostanie w cale zapisany, to bedzie blad.
+	if (fwrite(pSt, sizeof(STUDENT), 1, file) != 1)
+		return false;
+
+	if (fwrite(pSt->nazwisko, sizeof(pSt->nazwisko) * (pSt->dl_nazw), 1, file) != 1) 
+		return false;
 	
-	if (fwrite(pSt, sizeof(pSt->dl_nazw) + sizeof(pSt->rok) + sizeof(pSt->kierunek), 1, file) != 1)
-		return false;
-	if (fwrite(pSt->nazwisko, sizeof(pSt->nazwisko) * (pSt->dl_nazw), 1, file) != 1) {
-		return false;
-	}
 
 	return true;
 }
 
 void* MY_STUDENT_read(FILE* file) {
+	//SF tu powstaje dynamicznie obiekt STUDENT
 	STUDENT *ptr = (STUDENT*)malloc(sizeof(STUDENT));
 	if (!ptr)
 		mess_fun(MEM_ALLOC_ERROR);
 	memset(ptr, 0, sizeof(STUDENT));
-	
-	if (fread(ptr, sizeof(ptr->dl_nazw) + sizeof(ptr->rok) + sizeof(ptr->kierunek), 1, file) !=1)
+
+	//SF to samo, co i w poprzedniej funkcji.
+	if (fread(ptr, sizeof(STUDENT), 1, file) !=1)
 		return 0;
 
 	ptr->nazwisko = (char*)malloc((ptr->dl_nazw)  * sizeof(char));
 	if (fread(ptr->nazwisko, sizeof(char) * (ptr->dl_nazw), 1, file) != 1)
 		return 0;
 
-	void* data = MY_STUDENT_push(ptr->nazwisko, ptr->rok, ptr->kierunek);
+	//SF Funkcja MY_STUDENT_push tez tworzy obiekt STUDENT - powstaje dublowanie tego samego obiektu.
+	//Pytanie: po co tworzymy jeszcze jedna kopie, jesli juz wszystkie dane sa odczytane do ptr?
+	//void* data = MY_STUDENT_push(ptr->nazwisko, ptr->rok, ptr->kierunek);
 
-	return (void*)data;
+	return (void*)ptr;
 }
 
 void MY_STUDENT_print(void* ptr) {

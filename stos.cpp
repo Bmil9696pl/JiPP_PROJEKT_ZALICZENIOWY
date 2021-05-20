@@ -198,7 +198,10 @@ void STOS_print() {
 	STOS* current = head;
 	if (current != NULL) {
 		while (current != NULL) {
-			MY_STUDENT_print(current->pData);
+			//SF kontener nie powinien bezposrednio wywolac zadna z funkcji obslugi danych
+			//inaczej zmizna typu danych spowoduje zmiany w liniacj kodu kontenera.
+			//Dla czegos u Pana jest wskaznik do funkcji print.
+			print(current->pData);
 			current = current->next;
 		}
 	}
