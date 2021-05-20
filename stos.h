@@ -1,3 +1,4 @@
+#include <cstdio>
 #ifndef STOS_H
 #define STOS_H
 
@@ -10,7 +11,7 @@ typedef void (*FreeData)(void* pdat);
 typedef void (*Print)(void* pdat);
 typedef bool (*Save)(void* pdat, FILE* file);
 typedef void* (*Load)(FILE* file);
-typedef int (Find)(void* pcurData, void* pSearchData);
+typedef bool (Find)(void* pcurData, void* pSearchData);
 
 void STOS_init(FreeData pFreeDat, Print print, Save save, Load load);
 void STOS_free();

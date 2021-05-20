@@ -9,14 +9,14 @@ using namespace std;
 #pragma warning (disable : 4996)
 
 static STOS* head = NULL;
-FreeData ptr_free_dat;
+FreeData freeData;
 Print print;
 Save save;
 Load load;
 
-void STOS_init(FreeData pFreeDat, Print _print, Save _save, Load _load) {
+void STOS_init(FreeData _freeData, Print _print, Save _save, Load _load) {
 	head = NULL;
-	ptr_free_dat = pFreeDat;
+	freeData = _freeData;
 	print = _print;
 	save = _save;
 	load = _load;
@@ -26,7 +26,7 @@ void STOS_free() {
 	STOS* p = head, * ptmp = NULL;
 
 	while (p) {
-		(*ptr_free_dat)(p->pData);
+		(*freeData)(p->pData);
 		ptmp = p;
 		p = p->next;
 		free(ptmp);
@@ -67,7 +67,7 @@ STOS STOS_pop() {
 	return rv;
 }
 
-void * STOS_search(void* pSearchDat, Find ptr_comp_fun, int FirstEntry) {
+void * STOS_search(void* pSearchDat, Find find, int FirstEntry) {
 	static STOS* p;
 	STOS* ptmp = NULL;
 
@@ -76,7 +76,7 @@ void * STOS_search(void* pSearchDat, Find ptr_comp_fun, int FirstEntry) {
 
 	while (p)
 	{
-		if (!(*ptr_comp_fun)(p->pData, pSearchDat))
+		if (!(*find)(p->pData, pSearchDat))
 		{
 			p = p->next;
 		}
@@ -133,6 +133,8 @@ void STOS_save() {
 		current = current->next;
 	}
 	
+	fdesc[items_t] = ftell(file);
+
 	_fseeki64(file, sizeof(unsigned int), SEEK_SET);
 	if (fwrite(fdesc, sizeof(__int64), count + 1, file) != count + 1)
 		file_error(file, fdesc);
@@ -200,5 +202,5 @@ void STOS_print() {
 			current = current->next;
 		}
 	}
-	else cout << "stos jest pusty" << endl;
+	else mess_fun(STACK_UNDERFLOW);
 }

@@ -32,8 +32,8 @@ int main() {
 			break;
 		case INTERF_STOP: clear();
 			return 0;
-		deafault:
-			cout << "nieznany kod funkcji" << endl;
+		default:
+			cout << "nieznany kod funkcji\n" << endl;
 		}
 	}
 }

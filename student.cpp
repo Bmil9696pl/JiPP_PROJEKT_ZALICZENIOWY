@@ -13,7 +13,7 @@ bool MY_STUDENT_save(void* tmp, FILE* file) {
 	
 	if (fwrite(pSt, sizeof(pSt->dl_nazw) + sizeof(pSt->rok) + sizeof(pSt->kierunek), 1, file) != 1)
 		return false;
-	if (fwrite(pSt, sizeof(pSt->nazwisko[0]) * pSt->dl_nazw, 1, file) != 1) {
+	if (fwrite(pSt->nazwisko, sizeof(pSt->nazwisko) * (pSt->dl_nazw), 1, file) != 1) {
 		return false;
 	}
 
@@ -26,11 +26,11 @@ void* MY_STUDENT_read(FILE* file) {
 		mess_fun(MEM_ALLOC_ERROR);
 	memset(ptr, 0, sizeof(STUDENT));
 	
-	if ((fread(ptr, sizeof(ptr->dl_nazw) + sizeof(ptr->rok) + sizeof(ptr->kierunek), 1, file)) !=1)
+	if (fread(ptr, sizeof(ptr->dl_nazw) + sizeof(ptr->rok) + sizeof(ptr->kierunek), 1, file) !=1)
 		return 0;
 
-	ptr->nazwisko = (char*)malloc((ptr->dl_nazw + 1) * sizeof(char));
-	if ((fread(ptr->nazwisko, sizeof(char) * ptr->dl_nazw, 1, file)) != 1)
+	ptr->nazwisko = (char*)malloc((ptr->dl_nazw)  * sizeof(char));
+	if (fread(ptr->nazwisko, sizeof(char) * (ptr->dl_nazw), 1, file) != 1)
 		return 0;
 
 	void* data = MY_STUDENT_push(ptr->nazwisko, ptr->rok, ptr->kierunek);
@@ -67,14 +67,18 @@ void* MY_STUDENT_init(char* nazwisko, int rok, KIERUNEK kierunek) {
 	if (pdat)
 	{
 		size_t dlugosc = strlen(nazwisko) + 1;
+
 		pdat->dl_nazw = dlugosc;
+
 		pdat->nazwisko = (char*)malloc(dlugosc * sizeof(char));
 		if (!pdat->nazwisko) {
 			mess_fun(MEM_ALLOC_ERROR);
 			return NULL;
 		}
 		strcpy(pdat->nazwisko, nazwisko);
+
 		pdat->rok = rok;
+
 		pdat->kierunek = kierunek;
 	}
 	return (void*)(pdat);
@@ -94,7 +98,7 @@ void * MY_STUDENT_push(char* nazwisko, int rok, KIERUNEK kierunek) {
 	return MY_STUDENT_init(nazwisko, rok, kierunek);
 }
 
-int MY_STUDENT_comp_nazw(void* pCurData, void* pSearchData) {
+bool MY_STUDENT_comp_nazw(void* pCurData, void* pSearchData) {
 	STUDENT* pcur = (STUDENT*)pCurData;
 	STUDENT* psearch = (STUDENT*)pSearchData;
 
@@ -104,7 +108,7 @@ int MY_STUDENT_comp_nazw(void* pCurData, void* pSearchData) {
 	return 0;
 }
 
-int MY_STUDENT_comp_rok(void* pCurData, void* pSearchData) {
+bool MY_STUDENT_comp_rok(void* pCurData, void* pSearchData) {
 	STUDENT* pcur = (STUDENT*)pCurData;
 	STUDENT* psearch = (STUDENT*)pSearchData;
 
@@ -114,7 +118,7 @@ int MY_STUDENT_comp_rok(void* pCurData, void* pSearchData) {
 	return 0;
 }
 
-int MY_STUDENT_comp_kier(void* pCurData, void* pSearchData) {
+bool MY_STUDENT_comp_kier(void* pCurData, void* pSearchData) {
 	STUDENT* pcur = (STUDENT*)pCurData;
 	STUDENT* psearch = (STUDENT*)pSearchData;
 

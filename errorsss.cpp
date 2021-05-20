@@ -6,10 +6,10 @@
 
 
 static const char* messege_string[]{
-	"E memory alloc error",
-	"E file error",
-	"W push error",
-	"W the stack is empty"
+	"E blad przy allokowaniu pamieci",
+	"E problem z dostepem do pliku",
+	"W blad podczas wykonywania push",
+	"W stos jest pusty"
 };
 
 void mess_fun(enum MESSEGES mess) {
